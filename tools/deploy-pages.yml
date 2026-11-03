@@ -27,7 +27,7 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          BASE_PATH: /wrist-catalog
+          BASE_PATH: /splitface
       - uses: actions/upload-pages-artifact@v3
         with:
           path: out

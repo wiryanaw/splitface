@@ -16,7 +16,7 @@ const mono = IBM_Plex_Mono({
 });
 
 // Where the site is published, for absolute links in social previews
-const SITE = "https://wiryanaw.github.io/wrist-catalog";
+const SITE = "https://wiryanaw.github.io/splitface";
 const TITLE = "Splitface · Free Garmin watch faces";
 const DESCRIPTION = "Free watch faces for the Garmin Forerunner 165 and 165 Music, for the run, the swim and the trip.";
 

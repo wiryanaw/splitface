@@ -13,7 +13,7 @@ export function Watch({ children, className, style }: { children: ReactNode; cla
   );
 }
 
-// Files in public/ need the site's base path (empty locally, /wrist-catalog on GitHub Pages)
+// Files in public/ need the site's base path (empty locally, /splitface on GitHub Pages)
 export const asset = (path: string) => `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}${path}`;
 
 // Where a face's images live: the still shown at rest, and the loop that plays on hover

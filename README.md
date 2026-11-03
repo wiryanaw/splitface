@@ -15,9 +15,9 @@ nvm use && npm install && npm run build
 
 ## Publishing
 
-Live at https://wiryanaw.github.io/wrist-catalog/ (GitHub Pages, served from the `gh-pages`
+Live at https://wiryanaw.github.io/splitface/ (GitHub Pages, served from the `gh-pages`
 branch). After changing the page, commit as usual, then run `tools/publish.sh`: it builds with
-the `/wrist-catalog` base path and pushes the result to `gh-pages` as a new commit. Pages
+the `/splitface` base path and pushes the result to `gh-pages` as a new commit. Pages
 updates within a minute or two.
 
 ## Where things are

@@ -6,7 +6,7 @@ set -e
 cd "$(dirname "$0")/.."
 export PATH="$HOME/.nvm/versions/node/v20.18.1/bin:$PATH"
 REMOTE="$(git remote get-url origin)"
-BASE_PATH=/wrist-catalog npm run build
+BASE_PATH=/splitface npm run build
 touch out/.nojekyll
 cd out
 git init -q -b gh-pages
