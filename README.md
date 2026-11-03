@@ -13,6 +13,13 @@ nvm use && npm install && npm run build
 `npm run build` writes the finished site to `out/`. Upload that folder to any static host
 (Netlify, Vercel, GitHub Pages or your own server). For live editing, `npm run dev`.
 
+## Publishing
+
+Live at https://wiryanaw.github.io/wrist-catalog/ (GitHub Pages, served from the `gh-pages`
+branch). After changing the page, commit as usual, then run `tools/publish.sh`: it builds with
+the `/wrist-catalog` base path and pushes the result to `gh-pages` as a new commit. Pages
+updates within a minute or two.
+
 ## Where things are
 
 - `components/landing/faces.ts`: the ten faces. Paste a face's Connect IQ Store link into its
