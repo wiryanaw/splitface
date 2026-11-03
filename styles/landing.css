@@ -1,0 +1,84 @@
+/* ---------------------------------------------------------------------------
+ * Landing page motion. Entrances follow BoardUI's condense-into-place recipe
+ * (fade + slight scale + small blur, cubic-bezier(0.22, 1, 0.36, 1)); the hero
+ * wipe and the face rail are decorative and slower by design. All of it stops
+ * under prefers-reduced-motion.
+ * --------------------------------------------------------------------------- */
+
+@keyframes landing-rise {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+    filter: blur(2px);
+  }
+}
+
+@keyframes landing-wipe {
+  from {
+    clip-path: circle(0% at 50% 50%);
+  }
+  to {
+    clip-path: circle(75% at 50% 50%);
+  }
+}
+
+@keyframes landing-rail {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.landing-rise {
+  animation: landing-rise 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: var(--delay, 0ms);
+}
+
+.landing-wipe {
+  animation: landing-wipe 900ms cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+.landing-rail {
+  animation: landing-rail 60s linear infinite;
+}
+.landing-rail:hover {
+  animation-play-state: paused;
+}
+
+/* A face's screen wakes as its card scrolls into view: dark and soft, then lit */
+.landing-screen {
+  opacity: 0;
+  filter: brightness(0.25) blur(6px);
+  transform: scale(1.06);
+}
+[data-awake="true"] .landing-screen {
+  opacity: 1;
+  filter: none;
+  transform: none;
+  transition:
+    opacity 400ms ease-out,
+    filter 700ms ease-out,
+    transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The warm glow behind the hero watch, in the accent */
+.landing-glow {
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklch, var(--color-accent-500) 22%, transparent),
+    color-mix(in oklch, var(--color-accent-700) 8%, transparent) 55%,
+    transparent
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-rise,
+  .landing-wipe,
+  .landing-rail {
+    animation: none;
+  }
+  .landing-screen {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
