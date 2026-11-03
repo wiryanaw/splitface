@@ -1,4 +1,4 @@
-# Wrist Catalog landing page
+# Splitface landing page
 
 Next.js + BoardUI, exported as a static site. Fonts: Bricolage Grotesque and IBM Plex Mono.
 

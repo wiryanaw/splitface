@@ -5,6 +5,7 @@ import { Catalog } from "@/components/landing/catalog";
 import { FaceRail } from "@/components/landing/face-rail";
 import { HeroWatch } from "@/components/landing/hero-watch";
 import { FACES } from "@/components/landing/faces";
+import { asset } from "@/components/landing/watch";
 import { InstallGuide } from "@/components/landing/install-guide";
 import "@/styles/landing.css";
 
@@ -20,9 +21,11 @@ export default function Home() {
     <>
       <div className="mx-auto max-w-[1180px] px-4 sm:px-6">
         <header className="flex items-center justify-between border-b border-separator-border py-5">
-          <span className="font-mono text-caption-1-medium uppercase">
-            Wrist Catalog <span className="text-text-tertiary">· Vol. 01</span>
-          </span>
+          <a href="#" className="flex items-center gap-2.5">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={asset("/splitface-mark.png")} alt="" width={28} height={28} className="size-7" />
+            <span className="text-title-3-bold">Splitface</span>
+          </a>
           <nav className="flex items-center gap-6 font-mono text-caption-1-medium uppercase text-text-secondary">
             <a href="#faces" className="transition-colors duration-150 hover:text-text-primary">
               Faces
@@ -80,7 +83,7 @@ export default function Home() {
         <Catalog />
         <InstallGuide />
         <footer className="flex flex-wrap justify-between gap-3 border-t border-separator-border py-8 font-mono text-caption-1-medium uppercase text-text-tertiary">
-          <span>Wrist Catalog · Free Garmin watch faces</span>
+          <span>Splitface · Free Garmin watch faces</span>
           <span>Designed by Wiryana · © 2026</span>
         </footer>
       </div>

@@ -15,9 +15,29 @@ const mono = IBM_Plex_Mono({
   weight: ["400", "500"],
 });
 
+// Where the site is published, for absolute links in social previews
+const SITE = "https://wiryanaw.github.io/wrist-catalog";
+const TITLE = "Splitface · Free Garmin watch faces";
+const DESCRIPTION = "Free watch faces for the Garmin Forerunner 165 and 165 Music, for the run, the swim and the trip.";
+
 export const metadata: Metadata = {
-  title: "Wrist Catalog",
-  description: "Free watch faces for the Garmin Forerunner 165 and 165 Music.",
+  metadataBase: new URL(SITE),
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    type: "website",
+    url: SITE,
+    siteName: "Splitface",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [{ url: `${SITE}/og.png`, width: 1200, height: 630, alt: "Splitface watch faces for the Garmin Forerunner 165" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [`${SITE}/og.png`],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
