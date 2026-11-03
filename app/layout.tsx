@@ -17,7 +17,7 @@ const mono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "Wrist Catalog",
-  description: "Ten free watch faces for the Garmin Forerunner 165 and 165 Music.",
+  description: "Free watch faces for the Garmin Forerunner 165 and 165 Music.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -4,11 +4,13 @@ import { ButtonLink } from "@/components/base/buttons/button";
 import { Catalog } from "@/components/landing/catalog";
 import { FaceRail } from "@/components/landing/face-rail";
 import { HeroWatch } from "@/components/landing/hero-watch";
+import { FACES } from "@/components/landing/faces";
 import { InstallGuide } from "@/components/landing/install-guide";
 import "@/styles/landing.css";
 
 const FACTS = [
-  { value: "10", label: "Faces" },
+  // The count follows the catalog, so it stays right as faces are added
+  { value: String(FACES.length), label: "Faces" },
   { value: "$0", label: "Forever" },
   { value: "390", label: "px AMOLED" },
 ];
@@ -37,7 +39,7 @@ export default function Home() {
             Forerunner 165<span className="hidden sm:inline"> · Watch faces</span>
           </span>
           <h1 className="landing-rise max-w-[18ch] text-hero-bold text-balance" style={{ "--delay": "80ms" } as CSSProperties}>
-            Ten faces for the run, the swim, the trip.
+            Watch faces for the run, the swim, the trip.
           </h1>
           <p
             className="landing-rise max-w-[40ch] text-title-3-regular text-text-primary"

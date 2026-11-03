@@ -1,7 +1,7 @@
 import { FACES } from "./faces";
 import { Watch, still } from "./watch";
 
-// All ten faces drifting past in one endless row (the list is doubled so the loop is seamless)
+// Every face drifting past in one endless row (the list is doubled so the loop is seamless)
 export function FaceRail() {
   const row = [...FACES, ...FACES];
   return (

@@ -7,7 +7,7 @@ export interface Face {
   store: string;
   text: string;
   tags: string[];
-  // Spans two columns on wide screens; two featured faces keep the ten in full rows of three
+  // Spans two columns on wide screens; pick featured faces so the grid ends on a full row of three
   featured?: boolean;
 }
 
