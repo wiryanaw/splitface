@@ -7,7 +7,7 @@ import { Button, ButtonLink } from "@/components/base/buttons/button";
 import { Chip } from "@/components/base/badges/chip";
 import { Tooltip, TooltipTrigger } from "@/components/base/tooltip/tooltip";
 import type { Face, ModelId } from "./faces";
-import { Watch, loop, still } from "./watch";
+import { Watch, asset, loop, still } from "./watch";
 import { cx } from "@/utils/cx";
 
 export function FaceCard({ face, number, model }: { face: Face; number: number; model: ModelId }) {
@@ -119,7 +119,7 @@ export function FaceCard({ face, number, model }: { face: Face; number: number; 
             </TooltipTrigger>
           )}
           <ButtonLink
-            href={`/downloads/${face.file}-${model}.prg`}
+            href={asset(`/downloads/${face.file}-${model}.prg`)}
             download
             variant={face.store ? "secondary" : "primary"}
             leadingIcon={RiDownloadLine}
