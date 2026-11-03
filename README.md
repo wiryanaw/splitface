@@ -24,10 +24,10 @@ updates within a minute or two.
 
 - `components/landing/faces.ts`: the ten faces. Paste a face's Connect IQ Store link into its
   `store` field and its card shows "Connect IQ" instead of "Connect IQ soon".
-- `public/faces/`: the round previews. `public/downloads/`: the watch files.
-- `public/bezel.png`: the watch case, from `tools/make_bezel.py`.
+- `public/faces/`: each face's still and the loop that plays on hover, from `tools/animate`
+  (`python3 stills.py` and `python3 animate.py` there). `public/downloads/`: the watch files.
 - `styles/landing.css`: the page's animations. BoardUI theme tokens are in `styles/theme.css`
-  (accent ramp set to orange, type families to Bricolage Grotesque and IBM Plex Mono).
+  (dark theme, a coral accent ramp, type families Bricolage Grotesque and IBM Plex Mono).
 
 ## BoardUI
 
