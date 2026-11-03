@@ -22,8 +22,10 @@ export function Catalog() {
         </div>
         <div className="flex flex-col items-start gap-2">
           <span className="font-mono text-caption-1-medium uppercase text-text-tertiary">Your watch</span>
+          {/* The dark theme's track matches the page, so a hairline and a lifted fill keep it visible */}
           <SegmentedControl
             aria-label="Your watch"
+            className="border border-border-button-default bg-background-secondary-default"
             selectedKeys={[model]}
             onSelectionChange={(keys) => {
               const [next] = [...keys];
