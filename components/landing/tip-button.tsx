@@ -16,7 +16,7 @@ export function TipButton() {
         target="_blank"
         rel="noopener"
         leadingIcon={RiCupLine}
-        className="rounded-full shadow-xl"
+        className="tip-shine rounded-full shadow-xl"
       >
         Buy me a coffee
       </ButtonLink>
