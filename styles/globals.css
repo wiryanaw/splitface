@@ -90,6 +90,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-variant-ligatures: contextual;
   font-kerning: normal;
+  /* The hero glow and face rail reach past the screen edge; without this, mobile Safari lets the page zoom out to fit them */
+  overflow-x: clip;
 }
 
 html {
