@@ -7,6 +7,7 @@ import { HeroWatch } from "@/components/landing/hero-watch";
 import { FACES } from "@/components/landing/faces";
 import { asset } from "@/components/landing/watch";
 import { InstallGuide } from "@/components/landing/install-guide";
+import { MakerNote } from "@/components/landing/maker-note";
 import "@/styles/landing.css";
 
 const FACTS = [
@@ -42,13 +43,13 @@ export default function Home() {
             Forerunner 165<span className="hidden sm:inline"> · Watch faces</span>
           </span>
           <h1 className="landing-rise max-w-[18ch] text-hero-bold text-balance" style={{ "--delay": "80ms" } as CSSProperties}>
-            Watch faces for the run, the swim, the trip.
+            Give your watch a better face.
           </h1>
           <p
             className="landing-rise max-w-[40ch] text-title-3-regular text-text-primary"
             style={{ "--delay": "160ms" } as CSSProperties}
           >
-            Hand built watch faces with smooth type, live step progress and colors you can change. All free.
+            Hand built Garmin watch faces with smooth type and colors you can make your own. Every one is free.
           </p>
           <div className="landing-rise flex flex-wrap justify-center gap-3" style={{ "--delay": "220ms" } as CSSProperties}>
             <ButtonLink href="#faces" trailingIcon={RiArrowDownLine} className="rounded-full">
@@ -82,9 +83,21 @@ export default function Home() {
       <div className="mx-auto max-w-[1180px] px-4 sm:px-6">
         <Catalog />
         <InstallGuide />
-        <footer className="flex flex-wrap justify-between gap-3 border-t border-separator-border py-8 font-mono text-caption-1-medium uppercase text-text-tertiary">
+        <MakerNote />
+        <footer className="flex flex-wrap justify-between gap-3 border-t border-separator-border py-8 font-mono text-caption-1-medium uppercase text-text-secondary">
           <span>Splitface · Free Garmin watch faces</span>
-          <span>Designed by Wiryana · © 2026</span>
+          <span>
+            Designed by{" "}
+            <a
+              href="https://wiryanaw.com/"
+              target="_blank"
+              rel="noopener"
+              className="text-text-primary outline-none transition-colors duration-150 hover:text-accent-500 focus-visible:ring-2 focus-visible:ring-border-focus-ring"
+            >
+              Wiryana
+            </a>{" "}
+            · © 2026
+          </span>
         </footer>
       </div>
     </>
