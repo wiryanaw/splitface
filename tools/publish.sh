@@ -1,12 +1,13 @@
 #!/bin/bash
 # Build the site for GitHub Pages and publish out/ to the gh-pages branch, as a new commit on
-# top of what is already there (no force push).
+# top of what is already there (no force push). It is served at trysplitface.com (public/CNAME),
+# so it builds with no base path.
 # Usage: tools/publish.sh  (from the project folder). The next build clears out/ again.
 set -e
 cd "$(dirname "$0")/.."
 export PATH="$HOME/.nvm/versions/node/v20.18.1/bin:$PATH"
 REMOTE="$(git remote get-url origin)"
-BASE_PATH=/splitface npm run build
+npm run build
 touch out/.nojekyll
 cd out
 git init -q -b gh-pages
