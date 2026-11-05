@@ -7,6 +7,7 @@ import { HeroWatch } from "@/components/landing/hero-watch";
 import { FACES } from "@/components/landing/faces";
 import { asset } from "@/components/landing/watch";
 import { InstallGuide } from "@/components/landing/install-guide";
+import { TipButton } from "@/components/landing/tip-button";
 import { MakerNote } from "@/components/landing/maker-note";
 import "@/styles/landing.css";
 
@@ -84,7 +85,8 @@ export default function Home() {
         <Catalog />
         <InstallGuide />
         <MakerNote />
-        <footer className="flex flex-wrap justify-between gap-3 border-t border-separator-border py-8 font-mono text-caption-1-medium uppercase text-text-secondary">
+        <TipButton />
+        <footer className="flex flex-wrap justify-between gap-3 border-t border-separator-border pt-8 pb-24 sm:pb-8 font-mono text-caption-1-medium uppercase text-text-secondary">
           <span>Splitface · Free Garmin watch faces</span>
           <span>
             Designed by{" "}
