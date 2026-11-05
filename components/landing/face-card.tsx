@@ -2,15 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Focusable } from "react-aria-components";
-import { RiDownloadLine, RiExternalLinkLine, RiPauseFill, RiPlayFill } from "@remixicon/react";
+import { RiExternalLinkLine, RiPauseFill, RiPlayFill } from "@remixicon/react";
 import { Button, ButtonLink } from "@/components/base/buttons/button";
 import { Chip } from "@/components/base/badges/chip";
 import { Tooltip, TooltipTrigger } from "@/components/base/tooltip/tooltip";
-import type { Face, ModelId } from "./faces";
-import { Watch, asset, loop, still } from "./watch";
+import type { Face } from "./faces";
+import { Watch, loop, still } from "./watch";
 import { cx } from "@/utils/cx";
 
-export function FaceCard({ face, number, model }: { face: Face; number: number; model: ModelId }) {
+export function FaceCard({ face, number }: { face: Face; number: number }) {
   const ref = useRef<HTMLElement>(null);
   const [awake, setAwake] = useState(false);
   // Playing swaps the still for the looping preview, which restarts from its first frame
@@ -103,7 +103,7 @@ export function FaceCard({ face, number, model }: { face: Face; number: number; 
           ))}
         </div>
 
-        <div className="mt-auto grid grid-cols-2 gap-2">
+        <div className="mt-auto flex flex-col">
           {face.store ? (
             <ButtonLink href={face.store} target="_blank" rel="noopener" trailingIcon={RiExternalLinkLine}>
               Connect IQ
@@ -118,14 +118,6 @@ export function FaceCard({ face, number, model }: { face: Face; number: number; 
               <Tooltip>Coming soon to the Connect IQ Store</Tooltip>
             </TooltipTrigger>
           )}
-          <ButtonLink
-            href={asset(`/downloads/${face.file}-${model}.prg`)}
-            download
-            variant={face.store ? "secondary" : "primary"}
-            leadingIcon={RiDownloadLine}
-          >
-            Download
-          </ButtonLink>
         </div>
       </div>
     </article>

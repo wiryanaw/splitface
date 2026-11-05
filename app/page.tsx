@@ -15,7 +15,7 @@ const FACTS = [
   // The count follows the catalog, so it stays right as faces are added
   { value: String(FACES.length), label: "Faces" },
   { value: "$0", label: "Forever" },
-  { value: "390", label: "px AMOLED" },
+  { value: "51", label: "Garmin watches" },
 ];
 
 export default function Home() {
@@ -41,7 +41,7 @@ export default function Home() {
         {/* Centered like a poster: label, headline, actions, then the big screen in a warm glow */}
         <section className="flex flex-col items-center gap-8 pt-16 pb-20 text-center lg:pt-24">
           <span className="landing-rise font-mono text-eyebrow-medium uppercase text-accent-500">
-            Forerunner 165<span className="hidden sm:inline"> · Watch faces</span>
+            51 Garmin watches<span className="hidden sm:inline"> · Watch faces</span>
           </span>
           <h1 className="landing-rise max-w-[18ch] text-hero-bold text-balance" style={{ "--delay": "80ms" } as CSSProperties}>
             Give your watch a better face.

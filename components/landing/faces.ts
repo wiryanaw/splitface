@@ -95,10 +95,3 @@ export const FACES: Face[] = [
     tags: ["Two time zones", "Steps", "Heart rate", "Your cities"],
   },
 ];
-
-export const MODELS = [
-  { id: "fr165", name: "Forerunner 165" },
-  { id: "fr165m", name: "Forerunner 165 Music" },
-] as const;
-
-export type ModelId = (typeof MODELS)[number]["id"];

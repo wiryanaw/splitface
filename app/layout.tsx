@@ -18,7 +18,7 @@ const mono = IBM_Plex_Mono({
 // Where the site is published, for absolute links in social previews
 const SITE = "https://trysplitface.com";
 const TITLE = "Splitface · Free Garmin watch faces";
-const DESCRIPTION = "Hand built, free watch faces for the Garmin Forerunner 165 and 165 Music.";
+const DESCRIPTION = "Hand built, free watch faces for 51 Garmin watches with a round AMOLED screen, from the Forerunner 165 to the fēnix 9.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     siteName: "Splitface",
     title: TITLE,
     description: DESCRIPTION,
-    images: [{ url: `${SITE}/og.png`, width: 1200, height: 630, alt: "Splitface watch faces for the Garmin Forerunner 165" }],
+    images: [{ url: `${SITE}/og.png`, width: 1200, height: 630, alt: "Splitface watch faces for Garmin watches" }],
   },
   twitter: {
     card: "summary_large_image",

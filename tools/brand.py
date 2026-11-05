@@ -71,9 +71,9 @@ def banner():
     for ch in "FREE GARMIN WATCH FACES":
         d.text((cx, 232), ch, font=label, fill=CORAL)
         cx += label.getlength(ch) + 5
-    for i, line in enumerate(["Watch faces for", "the run, the swim,", "the trip."]):
+    for i, line in enumerate(["Give your watch", "a better face."]):
         d.text((68, 278 + i * 70), line, font=title, fill=WHITE)
-    d.text((72, 520), "Forerunner 165 and 165 Music  ·  by Wiryana", font=body, fill=MUTED)
+    d.text((72, 452), "51 Garmin watches  ·  by Wiryana", font=body, fill=MUTED)
     return img.convert("RGB")
 
 
