@@ -1,7 +1,9 @@
 """One renderer per face: render(t) draws the face at loop time t (0 to 1) from the face's own
 art and layout code (each mirrors that project's source/FaceView.mc), with the value that
 drives the face (steps, battery, time) moving through the loop."""
+import json
 import math
+import os
 from PIL import Image, ImageDraw
 from watchkit import N, Project, Shapes, battery, blend, clock, keyframes, rgb, thousands
 
@@ -433,6 +435,425 @@ class FlightPath:
         return img
 
 
+# ---------------------------------------------------------------- Sticker Bomb (StickerFace)
+def turn(x, y, cx, cy, degrees):
+    """A point of a CSS box turned rotate(degrees) about its center: the pen for tilted text."""
+    a = math.radians(degrees)
+    dx, dy = x - cx, y - cy
+    return cx + dx * math.cos(a) - dy * math.sin(a), cy + dx * math.sin(a) + dy * math.cos(a)
+
+
+class StickerBomb:
+    """Stickers slapped on a dotted ground; the steps sticker grows with the count."""
+
+    WHITE, INK, YELLOW, HALO = 0xFFFFFF, 0x111111, 0xFFE03D, 0x000000
+    STEPS_MIN, BATT_MIN, STEP, STEPS_COUNT, BATT_COUNT = 48, 18, 4, 15, 6
+
+    def __init__(self, ground=0):
+        self.p = Project("StickerFace")
+        self.g = ground
+        self.layout = json.load(open(os.path.join(self.p.root, "resources", "jsonData", "layout.json")))
+
+    def along(self, img, font, x, y, cx, cy, degrees, text, color):
+        px, py = turn(x, y, cx, cy, degrees)
+        a = math.radians(degrees)
+        font.draw_along(img, px, py, text, color, math.cos(a), math.sin(a))
+
+    def bucket(self, width, low, count):
+        return max(0, min(count - 1, math.ceil((width - low) / self.STEP)))
+
+    def render(self, t, steps=None, hr=None, battery_level=72, minutes=None):
+        minutes = 10 * 60 + 8 + int(t * 12) if minutes is None else minutes
+        steps = round(keyframes(t, [(0, 7600), (1, 9400)])) if steps is None else steps
+        hr = heart_rate(t, 58) if hr is None else hr
+        img = Image.new("RGBA", (N, N), (0, 0, 0, 255))
+        self.p.blit(img, f"BgSticker{self.g}", 0, 0)
+        date = self.p.font("ST_DATE")
+        self.along(img, date, 123.7 - (date.width(DATE) - 3) / 2, 76, 123.7, 85, -10, DATE, self.INK)
+        icon, rate = self.p.font("ST_HICON"), self.p.font("ST_HR")
+        self.along(img, icon, 287 - icon.width("♥") / 2, 88 - icon.height / 2, 287, 101, 12, "♥", self.WHITE)
+        text = str(hr)
+        self.along(img, rate, 287 - rate.width(text) / 2, 108 - rate.height / 2, 287, 101, 12, text, self.WHITE)
+        time, c = self.p.font(f"ST_TIME_{self.g}"), clock(minutes)
+        for color in (self.HALO, self.WHITE, self.YELLOW):
+            self.along(img, time, 195.05 - time.width(c) / 2, 98, 195.05, 187, -6, c, color)
+        foot = self.p.font("ST_STEPS")
+        text = thousands(steps) + " steps"
+        i = self.bucket(foot.width(text), self.STEPS_MIN, self.STEPS_COUNT)
+        x, y = self.layout["steps"][i]
+        self.p.blit(img, f"Steps{self.g}_{i}", x, y)
+        w = self.STEPS_MIN + i * self.STEP + 36
+        self.along(img, foot, 88 + (w - 36 - foot.width(text)) / 2, 290, 70 + w / 2, 299.75, -8, text, self.INK)
+        batt = self.p.font("ST_BATT")
+        pct = f"{battery_level}%"
+        i = self.bucket(batt.width(pct), self.BATT_MIN, self.BATT_COUNT)
+        x, y = self.layout["batt"][i]
+        self.p.blit(img, f"Batt{self.g}_{i}", x, y)
+        w = 27 + self.BATT_MIN + i * self.STEP + 36
+        level = "abcdefghijk"[(battery_level + 5) // 10]
+        self.along(img, batt, 242 + (w - 63 - batt.width(pct)) / 2, 296, 224 + w / 2, 305.75, 9, level + pct, self.WHITE)
+        return img
+
+
+# ---------------------------------------------------------------- Arcade HUD (ArcadeFace)
+class ArcadeHUD:
+    """A pixel platformer HUD: steps count up like a score."""
+
+    YELLOW, WHITE, RED, GREEN = 0xFFD23F, 0xFFFFFF, 0xFF6B6B, 0x3BD16F
+
+    def __init__(self, coin=0):
+        self.p = Project("ArcadeFace")
+        self.coin = coin
+
+    def render(self, t, steps=None, hr=None, battery_level=72, minutes=None):
+        minutes = 10 * 60 + 8 + int(t * 12) if minutes is None else minutes
+        steps = round(keyframes(t, [(0, 7600), (1, 9400)])) if steps is None else steps
+        hr = heart_rate(t, 58) if hr is None else hr
+        img = Image.new("RGBA", (N, N), (0, 0, 0, 255))
+        self.p.blit(img, f"BgArcade{self.coin}", 0, 0)
+        label, value = self.p.font("AR_LABEL"), self.p.font("AR_VALUE")
+        label.draw(img, 64, 73, "STEPS", self.YELLOW)
+        value.draw(img, 64, 89, f"{min(steps, 99999):05d}", self.WHITE)
+        label.draw(img, 326, 73, DATE[:3], self.YELLOW, "right")
+        value.draw(img, 326, 89, "03-11", self.WHITE, "right")
+        self.p.font("AR_TIME").draw(img, 195, 122, clock(minutes), self.WHITE, "center")
+        foot = self.p.font("AR_FOOT")
+        heart, pct = f"♥×{hr}", f"{battery_level}%"
+        x = 195 - (foot.width(heart) + 22 + 38 + foot.width(pct)) / 2
+        foot.draw(img, round(x), 296, heart, self.RED)
+        frame = round(x + foot.width(heart) + 22)
+        d = ImageDraw.Draw(img)
+        d.rectangle([frame, 296, frame + 33, 311], fill=rgb(self.WHITE))
+        d.rectangle([frame + 2, 298, frame + 31, 309], fill=(0xA0, 0x52, 0x2D))
+        for k in range(min(4, (battery_level + 12) // 25)):
+            d.rectangle([frame + 4 + 7 * k, 300, frame + 8 + 7 * k, 307], fill=rgb(self.GREEN))
+        foot.draw(img, frame + 38, 298, pct, self.WHITE)
+        return img
+
+
+# ---------------------------------------------------------------- Waypoint Map (WaypointFace)
+class WaypointMap:
+    """A trail map with the day's route; the distance counts up with the steps."""
+
+    INK, MUTED = 0x1F2A24, 0x5E7266
+    HEARTS = [0xFF3D7F, 0x3D63FF, 0xFF3DB4, 0xFF5A1F]
+    PILLS = [(102, 56), (166, 60), (234, 54)]
+
+    def __init__(self, route=0):
+        self.p = Project("WaypointFace")
+        self.route = route
+
+    def render(self, t, steps=None, hr=None, battery_level=72, minutes=None):
+        minutes = 10 * 60 + 8 + int(t * 12) if minutes is None else minutes
+        steps = round(keyframes(t, [(0, 7600), (1, 9400)])) if steps is None else steps
+        hr = heart_rate(t, 58) if hr is None else hr
+        img = Image.new("RGBA", (N, N), (0, 0, 0, 255))
+        self.p.blit(img, f"BgWaypoint{self.route}", 0, 0)
+        date, time, pill = self.p.font("WP_DATE"), self.p.font("WP_TIME"), self.p.font("WP_PILL")
+        line = f"TUE 3 NOV · {steps * 0.74 / 1000:.1f} KM"
+        date.draw(img, round(195 - date.width(line) / 2), 70, line, self.MUTED)
+        c = clock(minutes)
+        time.draw(img, round(195 - time.width(c) / 2), 76, c, self.INK)
+        beats = f" {hr}"
+        (x, w) = self.PILLS[0]
+        left = round(x + (w - pill.width("♥") - pill.width(beats)) / 2)
+        pill.draw(img, left, 334, "♥", self.HEARTS[self.route])
+        pill.draw(img, left + pill.width("♥"), 334, beats, self.INK)
+        for (x, w), text in zip(self.PILLS[1:], [thousands(steps), f"{battery_level}%"]):
+            pill.draw(img, round(x + (w - pill.width(text)) / 2), 334, text, self.INK)
+        return img
+
+
+# ---------------------------------------------------------------- Chess Clock (ChessFace)
+class ChessClock:
+    """A blitz clock on a chess board: your move, with the time on your side."""
+
+    CREAM, INK = 0xF5EBDD, 0x1E1A16
+    PILL_MIN, STEP, PILL_COUNT = 132, 4, 8
+
+    def __init__(self, board=0):
+        self.p = Project("ChessFace")
+        self.board = board
+        self.layout = json.load(open(os.path.join(self.p.root, "resources", "jsonData", "layout.json")))
+
+    def render(self, t, steps=None, hr=None, battery_level=72, minutes=None, date="TUE 3 NOV"):
+        minutes = 10 * 60 + 8 + int(t * 12) if minutes is None else minutes
+        steps = round(keyframes(t, [(0, 7600), (1, 9400)])) if steps is None else steps
+        hr = heart_rate(t, 58) if hr is None else hr
+        img = Image.new("RGBA", (N, N), (0, 0, 0, 255))
+        self.p.blit(img, f"BgChess{self.board}", 0, 0)
+        font = self.p.font("CH_DATE")
+        line = date + " · BLITZ"
+        w = font.width(line)
+        i = max(0, min(self.PILL_COUNT - 1, math.ceil((w - self.PILL_MIN) / self.STEP)))
+        self.p.blit(img, f"Pill{self.board}_{i}", *self.layout["pill"][i])
+        font.draw(img, round(195 - w / 2), 64, line, self.CREAM)
+        time, c = self.p.font("CH_TIME"), clock(minutes)
+        time.draw(img, round(132.1 - time.width(c) / 2), 164, c, self.INK)
+        value = self.p.font("CH_VALUE")
+        value.draw(img, 240, 156, str(hr), self.CREAM)
+        value.draw(img, 258, 177, thousands(steps), self.CREAM)
+        value.draw(img, 252, 199, f"{battery_level}%", self.CREAM)
+        return img
+
+
+# ---------------------------------------------------------------- Origami (OrigamiFace)
+class Origami:
+    """Folded low poly paper and a paper crane; the chips grow with their numbers."""
+
+    WHITE = 0xFFFFFF
+    SHADOW = [0xA02814]
+    STEP = 4
+    PIECES = {"tag": (112, 10), "heart": (24, 5), "steps": (52, 12), "batt": (60, 6)}
+    SLOTS = [59.5, 120.5, 181.5, 208.5, 269.5]
+
+    def __init__(self, way=0):
+        self.p = Project("OrigamiFace")
+        self.way = way
+        self.layout = json.load(open(os.path.join(self.p.root, "resources", "jsonData", "layout.json")))
+        self.tag_colors = self.p.fonts["OG_TAG"][1]
+        self.shadow = self.p.fonts[f"OG_TIME_{way}_0"][1][0]
+
+    def piece(self, img, kind, width):
+        low, count = self.PIECES[kind]
+        i = max(0, min(count - 1, math.ceil((width - low) / self.STEP)))
+        self.p.blit(img, f"{kind.capitalize()}{self.way}_{i}", *self.layout[kind][i])
+
+    def render(self, t, steps=None, hr=None, battery_level=72, minutes=None, date="TUE 3 NOV"):
+        minutes = 10 * 60 + 8 + int(t * 12) if minutes is None else minutes
+        steps = round(keyframes(t, [(0, 7600), (1, 9400)])) if steps is None else steps
+        hr = heart_rate(t, 58) if hr is None else hr
+        img = Image.new("RGBA", (N, N), (0, 0, 0, 255))
+        self.p.blit(img, f"BgOrigami{self.way}", 0, 0)
+        tag, line = self.p.font("OG_TAG"), "FOLD · " + date
+        self.piece(img, "tag", tag.width(line))
+        tag.draw(img, round(195 - tag.width(line) / 2), 62, line, self.tag_colors[self.way])
+        c = clock(minutes)
+        for color in (self.shadow, self.WHITE):
+            for k, ch in enumerate(c):
+                self.p.font(f"OG_TIME_{self.way}_{k}").draw(img, math.floor(self.SLOTS[k] + 0.5), 78, ch, color)
+        chip = self.p.font(f"OG_CHIP_{self.way}")
+        ink = chip.palette[0]
+        for kind, text, top in (("heart", f"♥ {hr}", 228), ("steps", thousands(steps) + " STEPS", 259.5), ("batt", f"BATT {battery_level}%", 289)):
+            self.piece(img, kind, chip.width(text))
+            chip.draw(img, 70, math.floor(top + 0.5), text, ink)
+        return img
+
+
+# ---------------------------------------------------------------- Toy Bricks (BricksFace)
+class ToyBricks:
+    """The time built from toy bricks on a studded baseplate."""
+
+    INK = 0x222222
+    DIGIT_X = [84, 156, 234, 306]
+    STAT_X = [103, 200, 292]
+    TAG_MIN, STEP, TAG_COUNT = 116, 4, 8
+
+    def __init__(self, base=0):
+        self.p = Project("BricksFace")
+        self.base = base
+        self.layout = json.load(open(os.path.join(self.p.root, "resources", "jsonData", "layout.json")))
+
+    def render(self, t, steps=None, hr=None, battery_level=72, minutes=None, date="TUE 3 NOV"):
+        minutes = 10 * 60 + 8 + int(t * 12) if minutes is None else minutes
+        steps = round(keyframes(t, [(0, 7600), (1, 9400)])) if steps is None else steps
+        hr = heart_rate(t, 58) if hr is None else hr
+        img = Image.new("RGBA", (N, N), (0, 0, 0, 255))
+        self.p.blit(img, f"BgBricks{self.base}", 0, 0)
+        tag, line = self.p.font("BR_DATE"), "BUILD · " + date
+        w = tag.width(line)
+        i = max(0, min(self.TAG_COUNT - 1, math.ceil((w - self.TAG_MIN) / self.STEP)))
+        self.p.blit(img, f"Tag{self.base}_{i}", *self.layout["tag"][i])
+        tag.draw(img, round(195 - w / 2), 58, line, self.INK)
+        for k, ch in enumerate(clock(minutes).replace(":", "")):
+            font = self.p.font(f"BR_DIGIT_{k}")
+            font.draw(img, round(self.DIGIT_X[k] - font.width(ch) / 2), 105, ch, font.palette[0])
+        for k, text in enumerate([f"♥ {hr}", thousands(steps), f"{battery_level}%"]):
+            font = self.p.font(f"BR_STAT_{k}")
+            font.draw(img, round(self.STAT_X[k] - font.width(text) / 2), 245, text, font.palette[0])
+        return img
+
+
+# ---------------------------------------------------------------- Traffic Light (TrafficFace)
+class TrafficLight:
+    """A city signal at sunset, with heart rate, steps and battery in the lamps."""
+
+    PEACH, WHITE, INK = 0xFFE1C8, 0xFFFFFF, 0x1A1A1A
+    LAMPS = [103, 195, 287]
+
+    def __init__(self, sky=0):
+        self.p = Project("TrafficFace")
+        self.sky = sky
+
+    def render(self, t, steps=None, hr=None, battery_level=72, minutes=None, date="TUE 3 NOV"):
+        minutes = 10 * 60 + 8 + int(t * 12) if minutes is None else minutes
+        steps = round(keyframes(t, [(0, 7600), (1, 9400)])) if steps is None else steps
+        hr = heart_rate(t, 58) if hr is None else hr
+        img = Image.new("RGBA", (N, N), (0, 0, 0, 255))
+        self.p.blit(img, f"BgTraffic{self.sky}", 0, 0)
+        self.p.font(f"TL_DATE_{self.sky}").draw(img, 195, 60, "GO TIME · " + date, self.PEACH, "center")
+        self.p.font(f"TL_TIME_{self.sky}").draw(img, 195, 68, clock(minutes), self.WHITE, "center")
+        for k, text in enumerate([f"♥ {hr}", thousands(steps), f"{battery_level}%"]):
+            self.p.font(f"TL_LAMP_{k}").draw(img, self.LAMPS[k], 247, text, self.INK, "center")
+        return img
+
+
+# ---------------------------------------------------------------- Shot Clock (ShotFace)
+class ShotClock:
+    """A basketball scoreboard over the court, the time in glowing red LEDs."""
+
+    YELLOW = 0xFFD23F
+    CELLS = [113.65, 195, 276.35]
+
+    def __init__(self, paint=0):
+        self.p = Project("ShotFace")
+        self.paint = paint
+        self.layout = json.load(open(os.path.join(self.p.root, "resources", "jsonData", "layout.json")))
+
+    def render(self, t, steps=None, hr=None, battery_level=72, minutes=None, date="TUE 3 NOV"):
+        minutes = 10 * 60 + 8 + int(t * 12) if minutes is None else minutes
+        steps = round(keyframes(t, [(0, 7600), (1, 9400)])) if steps is None else steps
+        hr = heart_rate(t, 58) if hr is None else hr
+        img = Image.new("RGBA", (N, N), (0, 0, 0, 255))
+        self.p.blit(img, f"BgShot{self.paint}", 0, 0)
+        self.p.blit(img, f"Hour{(minutes // 60) % 24:02d}", *self.layout["hour"])
+        self.p.blit(img, f"Minute{minutes % 60:02d}", *self.layout["minute"])
+        self.p.font("SH_DATE").draw(img, 195, 64, "SHOT CLOCK · " + date, self.YELLOW, "center")
+        value = self.p.font("SH_VALUE")
+        for x, text in zip(self.CELLS, [str(hr), thousands(steps), f"{battery_level}%"]):
+            value.draw(img, round(x), 191, text, self.YELLOW, "center")
+        return img
+
+
+# ---------------------------------------------------------------- Tennis Court (TennisFace)
+class TennisCourt:
+    """A court from above: the time over the baseline, the score panel at the net."""
+
+    WHITE, SHADOW = 0xFFFFFF, 0x000000
+    SLOTS = [86.6, 135.4, 184.2, 205.8, 254.6]
+    CELLS = [126.3, 195, 263.7]
+
+    def __init__(self, surface=0):
+        self.p = Project("TennisFace")
+        self.surface = surface
+
+    def render(self, t, steps=None, hr=None, battery_level=72, minutes=None, date="TUE 3 NOV"):
+        minutes = 10 * 60 + 8 + int(t * 12) if minutes is None else minutes
+        steps = round(keyframes(t, [(0, 7600), (1, 9400)])) if steps is None else steps
+        hr = heart_rate(t, 58) if hr is None else hr
+        img = Image.new("RGBA", (N, N), (0, 0, 0, 255))
+        self.p.blit(img, f"BgTennis{self.surface}", 0, 0)
+        self.p.font(f"TC_DATE_{self.surface}").draw(img, 195, 60, date + " · SET 2", self.WHITE, "center")
+        c = clock(minutes)
+        for color in (self.SHADOW, self.WHITE):
+            for k, ch in enumerate(c):
+                self.p.font(f"TC_TIME_{self.surface}_{k}").draw(img, math.floor(self.SLOTS[k] + 0.5), 96, ch, color)
+        value = self.p.font("TC_VALUE")
+        for x, text in zip(self.CELLS, [str(hr), thousands(steps), f"{battery_level}%"]):
+            value.draw(img, round(x), 237, text, self.WHITE, "center")
+        return img
+
+
+# ---------------------------------------------------------------- Watermelon (MelonFace)
+class Watermelon:
+    """A watermelon slice: a juicy time and three cream pills that hug their numbers."""
+
+    WHITE, SHADOW, RIND = 0xFFFFFF, 0x780A1E, 0x2F8F3A
+    SLOTS = [59.5, 120.5, 181.5, 208.5, 269.5]
+    PILL_MIN, STEP, PILL_COUNT = 8, 2, 25
+
+    def __init__(self, flesh=0):
+        self.p = Project("MelonFace")
+        self.flesh = flesh
+        self.layout = json.load(open(os.path.join(self.p.root, "resources", "jsonData", "layout.json")))
+
+    def render(self, t, steps=None, hr=None, battery_level=72, minutes=None, date="TUE 3 NOV"):
+        minutes = 10 * 60 + 8 + int(t * 12) if minutes is None else minutes
+        steps = round(keyframes(t, [(0, 7600), (1, 9400)])) if steps is None else steps
+        hr = heart_rate(t, 58) if hr is None else hr
+        img = Image.new("RGBA", (N, N), (0, 0, 0, 255))
+        self.p.blit(img, f"BgMelon{self.flesh}", 0, 0)
+        self.p.font(f"WM_DATE_{self.flesh}").draw(img, 195, 84, "JUICY · " + date, self.WHITE, "center")
+        c = clock(minutes)
+        for color in (self.SHADOW, self.WHITE):
+            for k, ch in enumerate(c):
+                self.p.font(f"WM_TIME_{self.flesh}_{k}").draw(img, math.floor(self.SLOTS[k] + 0.5), 90, ch, color)
+        pill = self.p.font("WM_PILL")
+        texts = [f"♥ {hr}", thousands(steps), f"{battery_level}%"]
+        steps_ = [max(0, min(self.PILL_COUNT - 1, math.ceil((pill.width(t) - self.PILL_MIN) / self.STEP))) for t in texts]
+        widths = [self.PILL_MIN + i * self.STEP + 24 for i in steps_]
+        x = 195 - (sum(widths) + 16) / 2
+        for text, i, w in zip(texts, steps_, widths):
+            dx, y = self.layout["pill"][i]
+            self.p.blit(img, f"Pill{self.flesh}_{i}", math.floor(x + 0.5) + dx, y)
+            pill.draw(img, math.floor(x + w / 2 + 0.5) - pill.width(text) // 2, 227, text, self.RIND)
+            x += w + 8
+        return img
+
+
+# ---------------------------------------------------------------- City faces (JakartaFace, SingaporeFace, KualaLumpurFace)
+class CityFace:
+    """A city skyline at a sky color: the time as Chrome drew it, the date and the stats pill."""
+
+    WHITE, SHADOW = 0xFFFFFF, 0x000000
+    DAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"]
+    PROJECT = None
+
+    def __init__(self, sky=0):
+        import re
+        self.p = Project(self.PROJECT)
+        self.sky = sky
+        self.layout = json.load(open(os.path.join(self.p.root, "resources", "jsonData", "layout.json")))
+        art = open(os.path.join(self.p.root, "source", "CityArt.mc")).read()
+        self.c = {k: float(v) for k, v in re.findall(r"const (\w+) = ([-\d.]+);", art)}
+        self.stacked = "const STACKED = true" in art
+        rest = re.search(r"const REST = \[([^\]]*)\]", art).group(1)
+        self.rest = [float(v) for v in rest.split(",")] if rest.strip() else []
+
+    def render(self, t, steps=None, hr=None, battery_level=72, minutes=None, date="TUE 3 NOV"):
+        minutes = 10 * 60 + 8 + int(t * 12) if minutes is None else minutes
+        steps = round(keyframes(t, [(0, 7600), (1, 9400)])) if steps is None else steps
+        hr = heart_rate(t, 58) if hr is None else hr
+        px = lambda v: math.floor(v + 0.5)
+        s = self.sky
+        img = Image.new("RGBA", (N, N), (0, 0, 0, 255))
+        self.p.blit(img, f"BgCity{s}", 0, 0)
+        self.p.blit(img, f"Hour{s}_{(minutes // 60) % 24:02d}", *self.layout["hour"])
+        self.p.blit(img, f"Minute{s}_{minutes % 60:02d}", *self.layout["minute"])
+        day, rest = date.split(" ", 1)
+        font = self.p.font(f"CITY_DATE_{s}")
+        y = px(self.c["DATE_BASE"]) - font.base
+        if self.stacked:
+            d = self.DAYS.index(day)
+            self.p.blit(img, f"Day{s}_{d}", *self.layout["day"])
+            for color in (self.SHADOW, self.WHITE):
+                font.draw(img, px(self.rest[d]), y, " " + rest, color)
+        else:
+            for color in (self.SHADOW, self.WHITE):
+                font.draw(img, px(self.c["DATE_CENTER"]), y, date, color, "center")
+        pill = self.p.font(f"CITY_PILL_{s}")
+        text = f"{hr} · {thousands(steps)} · {battery_level}%"
+        text = " " + text if self.stacked else "♥ " + text
+        step = math.ceil((self.c["PILL_LEAD"] + pill.width(text) - self.c["PILL_MIN"]) / self.c["STEP"])
+        step = max(0, min(int(self.c["PILL_COUNT"]) - 1, step))
+        self.p.blit(img, f"Pill{s}_{step}", *self.layout["pill"][step])
+        pill.draw(img, px(self.c["PILL_TEXT"]), px(self.c["PILL_BASE"]) - pill.base, text, self.WHITE,
+                  "left" if self.stacked else "center")
+        return img
+
+
+class Jakarta(CityFace):
+    PROJECT = "JakartaFace"
+
+
+class Singapore(CityFace):
+    PROJECT = "SingaporeFace"
+
+
+class KualaLumpur(CityFace):
+    PROJECT = "KualaLumpurFace"
+
+
 # ---------------------------------------------------------------- Oversize Type (OversizeFace)
 class OversizeType:
     """Minutes roll over, so the giant minute digits change shape over the hour."""
@@ -495,5 +916,6 @@ class OversizeType:
 ALL = {
     "running-track": RunningTrack, "orbit": Orbit, "topo-map": TopoMap, "liquid-battery": LiquidBattery,
     "oversize-type": OversizeType, "matchday": Matchday, "pool-lanes": PoolLanes, "race-bib": RaceBib,
-    "summit": Summit, "flight-path": FlightPath,
+    "summit": Summit, "flight-path": FlightPath, "sticker-bomb": StickerBomb, "arcade-hud": ArcadeHUD, "waypoint-map": WaypointMap, "chess-clock": ChessClock, "origami": Origami, "toy-bricks": ToyBricks, "traffic-light": TrafficLight, "shot-clock": ShotClock, "tennis-court": TennisCourt, "watermelon": Watermelon,
+    "jakarta": Jakarta, "singapore": Singapore, "kuala-lumpur": KualaLumpur,
 }

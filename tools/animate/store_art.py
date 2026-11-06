@@ -28,6 +28,19 @@ TAGLINES = {
     "race-bib": "A tilted race bib with your time on it.",
     "summit": "Your hiker climbs with every step.",
     "flight-path": "Two time zones and a plane flying your steps.",
+    "sticker-bomb": "Your stats, slapped on as stickers.",
+    "arcade-hud": "Your day as a retro platformer.",
+    "waypoint-map": "A trail map with today's route.",
+    "chess-clock": "A blitz clock, and it's your move.",
+    "origami": "Folded paper, a crane and big bold time.",
+    "toy-bricks": "The time, built from toy bricks.",
+    "traffic-light": "Your stats glow in a city signal.",
+    "shot-clock": "Game time on a courtside scoreboard.",
+    "tennis-court": "Match time, seen from above the court.",
+    "watermelon": "A juicy slice of summer on your wrist.",
+    "jakarta": "Monas at sunset, on your wrist.",
+    "singapore": "Marina Bay after dark, on your wrist.",
+    "kuala-lumpur": "Twin towers at dusk, on your wrist.",
 }
 W, H = 1440, 720
 
@@ -40,9 +53,9 @@ def glow(cx, cy, r):
     return Image.fromarray(img.astype(np.uint8), "RGB")
 
 
-def hero(key, name):
+def hero(key, name, face=None, tag="FORERUNNER 165  ·  WATCH FACE"):
     img = glow(1060, 360, 520).convert("RGBA")
-    face = round_mask(ALL[key]().render(STILL[key])).resize((560, 560), Image.LANCZOS)
+    face = round_mask(face if face is not None else ALL[key]().render(STILL[key])).resize((560, 560), Image.LANCZOS)
     # A soft shadow under the screen
     shadow = Image.new("L", (W, H), 0)
     ImageDraw.Draw(shadow).ellipse([780, 100, 1340, 660], fill=140)
@@ -53,6 +66,10 @@ def hero(key, name):
     d = ImageDraw.Draw(img)
     label = ImageFont.truetype(f"{FONTS}/PlexMono-Medium.ttf", 22)
     title = ImageFont.truetype(f"{FONTS}/Bricolage-ExtraBold.ttf", 112)
+    # A single word too long for the column (it would run into the watch) gets a smaller size
+    longest = max(title.getlength(w) for w in name.split())
+    if longest > 620:
+        title = ImageFont.truetype(f"{FONTS}/Bricolage-ExtraBold.ttf", int(112 * 620 / longest))
     body = ImageFont.truetype(f"{FONTS}/Bricolage-Regular.ttf", 34)
     x = 96
     # Title, wrapped to two lines when long
@@ -69,7 +86,7 @@ def hero(key, name):
     top = (H - (54 + len(lines) * 112 + 24 + 92)) // 2
     # Widely tracked coral label, drawn letter by letter
     cx = x
-    for ch in "FORERUNNER 165  ·  WATCH FACE":
+    for ch in tag:
         d.text((cx, top), ch, font=label, fill=CORAL)
         cx += label.getlength(ch) + 6
     y = top + 54
