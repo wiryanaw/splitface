@@ -22,7 +22,7 @@ updates within a minute or two.
 
 ## Where things are
 
-- `components/landing/faces.ts`: the ten faces. Paste a face's Connect IQ Store link into its
+- `components/landing/faces.ts`: the faces. Paste a face's Connect IQ Store link into its
   `store` field and its card shows "Connect IQ" instead of "Connect IQ soon".
 - `public/faces/`: each face's still and the loop that plays on hover, from `tools/animate`
   (`python3 stills.py` and `python3 animate.py` there). `public/downloads/`: the watch files.

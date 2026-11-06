@@ -38,7 +38,7 @@
 }
 
 .landing-rail {
-  animation: landing-rail 60s linear infinite;
+  animation: landing-rail 140s linear infinite;
 }
 .landing-rail:hover {
   animation-play-state: paused;
