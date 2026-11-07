@@ -200,4 +200,28 @@ export const FACES: Face[] = [
     text: "Monas and its golden flame against the evening sky, with the time in two big lines beside it.",
     tags: ["Steps", "Heart rate", "Battery", "Sky colors"],
   },
+  {
+    id: "paris",
+    name: "Paris",
+    file: "Paris",
+    store: "https://apps.garmin.com/apps/ccf9e713-7008-42f2-89f5-9410c9acf338",
+    text: "The Eiffel Tower against a blush dawn sky, the time stacked beside it.",
+    tags: ["Steps", "Heart rate", "Battery", "Sky colors"],
+  },
+  {
+    id: "san-francisco",
+    name: "San Francisco",
+    file: "SanFrancisco",
+    store: "https://apps.garmin.com/apps/36a84bf5-3037-4855-b9ea-6f2a992e1a2d",
+    text: "The Golden Gate rising out of the fog, the time above its towers.",
+    tags: ["Steps", "Heart rate", "Battery", "Sky colors"],
+  },
+  {
+    id: "sydney",
+    name: "Sydney",
+    file: "Sydney",
+    store: "https://apps.garmin.com/apps/395264e8-2462-429d-9610-2f613bd5a482",
+    text: "The Opera House sails on the harbour, with the bridge arching behind them.",
+    tags: ["Steps", "Heart rate", "Battery", "Sky colors"],
+  },
 ];
