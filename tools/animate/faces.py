@@ -854,6 +854,18 @@ class KualaLumpur(CityFace):
     PROJECT = "KualaLumpurFace"
 
 
+class Paris(CityFace):
+    PROJECT = "ParisFace"
+
+
+class SanFrancisco(CityFace):
+    PROJECT = "SanFranciscoFace"
+
+
+class Sydney(CityFace):
+    PROJECT = "SydneyFace"
+
+
 # ---------------------------------------------------------------- Oversize Type (OversizeFace)
 class OversizeType:
     """Minutes roll over, so the giant minute digits change shape over the hour."""
@@ -918,4 +930,5 @@ ALL = {
     "oversize-type": OversizeType, "matchday": Matchday, "pool-lanes": PoolLanes, "race-bib": RaceBib,
     "summit": Summit, "flight-path": FlightPath, "sticker-bomb": StickerBomb, "arcade-hud": ArcadeHUD, "waypoint-map": WaypointMap, "chess-clock": ChessClock, "origami": Origami, "toy-bricks": ToyBricks, "traffic-light": TrafficLight, "shot-clock": ShotClock, "tennis-court": TennisCourt, "watermelon": Watermelon,
     "jakarta": Jakarta, "singapore": Singapore, "kuala-lumpur": KualaLumpur,
+    "paris": Paris, "san-francisco": SanFrancisco, "sydney": Sydney,
 }

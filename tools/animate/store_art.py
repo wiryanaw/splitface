@@ -41,6 +41,9 @@ TAGLINES = {
     "jakarta": "Monas at sunset, on your wrist.",
     "singapore": "Marina Bay after dark, on your wrist.",
     "kuala-lumpur": "Twin towers at dusk, on your wrist.",
+    "paris": "The Eiffel Tower at dawn, on your wrist.",
+    "san-francisco": "The Golden Gate in the fog, on your wrist.",
+    "sydney": "Sydney Harbour by day, on your wrist.",
 }
 W, H = 1440, 720
 
