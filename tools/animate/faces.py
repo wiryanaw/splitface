@@ -866,6 +866,104 @@ class Sydney(CityFace):
     PROJECT = "SydneyFace"
 
 
+class Dubai(CityFace):
+    PROJECT = "DubaiFace"
+
+
+# ---------------------------------------------------------------- Trail Patch (TrailFace)
+class TrailPatch:
+    """An embroidered hiking patch: steps tick up on the banner."""
+
+    CREAM, GOLD = 0xFFF4DC, 0xE9C46A
+    DATE_MAX = 156
+
+    def __init__(self, patch=0):
+        self.p = Project("TrailFace")
+        self.patch = patch
+
+    def render(self, t, steps=None, hr=None, battery_level=72, minutes=None, date="TUE 3 NOV"):
+        minutes = 10 * 60 + 8 + int(t * 12) if minutes is None else minutes
+        steps = round(keyframes(t, [(0, 7600), (1, 9400)])) if steps is None else steps
+        hr = heart_rate(t, 58) if hr is None else hr
+        img = Image.new("RGBA", (N, N), (0, 0, 0, 255))
+        self.p.blit(img, f"BgTrail{self.patch}", 0, 0)
+        font = self.p.font(f"TRAIL_DATE_{self.patch}")
+        line = "TRAIL CLUB · " + date
+        tighten = 1 if font.width(line) > self.DATE_MAX else 0
+        x = 195 - (font.width(line) - tighten * (len(line) - 1)) // 2
+        for ch in line:
+            font.draw(img, x, 81 - font.base, ch, self.CREAM)
+            x += font.width(ch) - tighten
+        time = self.p.font(f"TRAIL_TIME_{self.patch}")
+        time.draw(img, 195, 158 - time.base, clock(minutes), self.CREAM, "center")
+        stats = self.p.font("TRAIL_STATS")
+        items = [f"♥ {hr}", "·", f"{thousands(steps)} STEPS", "·", f"{battery_level}%"]
+        pen = 195 - (12 * (len(items) - 1) + sum(stats.width(i) for i in items)) / 2
+        for item in items:
+            stats.draw(img, math.floor(pen + 0.5), math.floor(282.5 + 0.5) - stats.base, item, self.GOLD)
+            pen += stats.width(item) + 12
+        return img
+
+
+# ---------------------------------------------------------------- Data Pro (DataFace)
+class DataPro:
+    """A dark data dial: the step ring fills over the loop. Its options are sample days (weather and
+    body readings), as the face has no color setting."""
+
+    WHITE, YELLOW, ORANGE, RED, PURPLE = 0xFFFFFF, 0xFFD23F, 0xFFB03D, 0xFF5A6E, 0x8B5CFF
+    DAYS = [dict(weather="31° SUNNY", battery=76, stress=24, intensity=90, sun=("05:29", "17:46"), days=6),
+            dict(weather="27° PARTLY CLOUDY", battery=58, stress=41, intensity=125, sun=("05:31", "17:47"), days=5),
+            dict(weather="24° RAIN", battery=34, stress=18, intensity=40, sun=("05:30", "17:49"), days=3)]
+    RINGS, HALF, RING_Y, STEPS = [96, 162, 228, 294], 26, 214, 50
+
+    def __init__(self, day=0):
+        self.p = Project("DataFace")
+        self.day = self.DAYS[day]
+        import re
+        colors = open(os.path.join(self.p.root, "source", "DataColors.mc")).read()
+        self.c = {k: int(v, 16) for k, v in re.findall(r"const (\w+) = 0x(\w+);", colors)}
+
+    def render(self, t, steps=None, hr=None, battery_level=72, minutes=None, date="TUE 3 NOV"):
+        minutes = 10 * 60 + 8 + int(t * 12) if minutes is None else minutes
+        steps = round(keyframes(t, [(0, 7600), (1, 9400)])) if steps is None else steps
+        hr = heart_rate(t, 58) if hr is None else hr
+        d = self.day
+        img = Image.new("RGBA", (N, N), (0, 0, 0, 255))
+        self.p.blit(img, "BgData", 0, 0)
+        top = self.p.font("DATA_TOP")
+        x = 195 - (top.width(date) + 10 + top.width(d["weather"])) // 2
+        top.draw(img, x, 67 - top.base, date, self.c["GRAY_TOP"])
+        top.draw(img, x + top.width(date) + 10, 67 - top.base, d["weather"], self.YELLOW)
+        time = self.p.font("DATA_TIME")
+        time.draw(img, 195, 153 - time.base, clock(minutes), self.WHITE, "center")
+        short = str(steps) if steps < 1000 else (f"{steps // 1000}.{steps % 1000 // 100}k" if steps < 10000 else f"{steps // 1000}k")
+        rings = [(d["battery"] / 100, str(d["battery"])), (d["stress"] / 100, str(d["stress"])),
+                 (steps / 10000, short), (d["intensity"] / 150, str(d["intensity"]))]
+        for i, (amount, value) in enumerate(rings):
+            k = round(min(1.0, amount) * self.STEPS)
+            if k > 0:
+                self.p.blit(img, f"Ring{i}_{k}", self.RINGS[i] - self.HALF, self.RING_Y - self.HALF)
+            font = self.p.font("DATA_VALUE_SMALL" if i == 2 else "DATA_VALUE")
+            font.draw(img, self.RINGS[i], (218 if i == 2 else 219) - font.base, value, self.WHITE, "center")
+        sun = self.p.font("DATA_SUN")
+        marks, colors = ["↑", "♥", "↓"], [self.ORANGE, self.RED, self.PURPLE]
+        texts = [" " + d["sun"][0], f" {hr}", " " + d["sun"][1]]
+        x = 195 - (28 + sum(sun.width(m) + sun.width(s) for m, s in zip(marks, texts))) // 2
+        for m, s, color in zip(marks, texts, colors):
+            sun.draw(img, x, 298 - sun.base, m, color)
+            x += sun.width(m)
+            sun.draw(img, x, 298 - sun.base, s, self.c["WHITE85"])
+            x += sun.width(s) + 14
+        foot = self.p.font("DATA_BATTERY")
+        text = f"{battery_level}% · {d['days']} days"
+        x = 195 - (foot.width("▭") + foot.width(text)) // 2
+        foot.draw(img, x, 321 - foot.base, "▭" + text, self.c["GRAY_FOOT"])
+        fill = round(11 * max(0, min(100, battery_level)) / 100)
+        if fill:
+            ImageDraw.Draw(img).rectangle([x + 3, 314, x + 2 + fill, 319], fill=rgb(self.c["GRAY_FOOT"]))
+        return img
+
+
 # ---------------------------------------------------------------- Oversize Type (OversizeFace)
 class OversizeType:
     """Minutes roll over, so the giant minute digits change shape over the hour."""
@@ -931,4 +1029,5 @@ ALL = {
     "summit": Summit, "flight-path": FlightPath, "sticker-bomb": StickerBomb, "arcade-hud": ArcadeHUD, "waypoint-map": WaypointMap, "chess-clock": ChessClock, "origami": Origami, "toy-bricks": ToyBricks, "traffic-light": TrafficLight, "shot-clock": ShotClock, "tennis-court": TennisCourt, "watermelon": Watermelon,
     "jakarta": Jakarta, "singapore": Singapore, "kuala-lumpur": KualaLumpur,
     "paris": Paris, "san-francisco": SanFrancisco, "sydney": Sydney,
+    "dubai": Dubai, "trail-patch": TrailPatch, "data-pro": DataPro,
 }

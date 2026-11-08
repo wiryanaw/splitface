@@ -7,7 +7,7 @@ import sys
 from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-FONTS = "/private/tmp/claude-501/-Users-hangryindonesia/428c9728-5e59-4914-9146-8d548c1c144a/scratchpad/brandfonts"
+FONTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts")
 GROUND = (0x12, 0x12, 0x12)
 CORAL = (0xFF, 0x5A, 0x36)
 WHITE = (0xFA, 0xFA, 0xFA)

@@ -9,7 +9,7 @@ from faces import ALL
 from stills import STILL
 from watchkit import round_mask
 
-FONTS = "/private/tmp/claude-501/-Users-hangryindonesia/428c9728-5e59-4914-9146-8d548c1c144a/scratchpad/brandfonts"
+FONTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "fonts")
 GROUND = (0x12, 0x12, 0x12)
 CORAL = (0xFF, 0x5A, 0x36)
 WHITE = (0xFA, 0xFA, 0xFA)
@@ -44,6 +44,9 @@ TAGLINES = {
     "paris": "The Eiffel Tower at dawn, on your wrist.",
     "san-francisco": "The Golden Gate in the fog, on your wrist.",
     "sydney": "Sydney Harbour by day, on your wrist.",
+    "dubai": "The Burj Khalifa at sunset, on your wrist.",
+    "trail-patch": "An embroidered trail patch for the hiker in you.",
+    "data-pro": "Your body, the weather and the sun at a glance.",
 }
 W, H = 1440, 720
 

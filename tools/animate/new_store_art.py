@@ -5,7 +5,7 @@ Usage: python3 new_store_art.py [face keys]  (from tools/animate)"""
 import os
 from PIL import Image
 from faces import (ArcadeHUD, ChessClock, Origami, ShotClock, StickerBomb, TennisCourt, ToyBricks, TrafficLight, WaypointMap,
-                   Watermelon, Jakarta, Singapore, KualaLumpur, Paris, SanFrancisco, Sydney)
+                   Watermelon, Jakarta, Singapore, KualaLumpur, Paris, SanFrancisco, Sydney, Dubai, TrailPatch, DataPro)
 import sys
 from store_art import glow, hero
 from watchkit import round_mask
@@ -29,6 +29,9 @@ NEW = [
     ("paris", "Paris", Paris, [0, 1, 2]),
     ("san-francisco", "San Francisco", SanFrancisco, [0, 1, 2]),
     ("sydney", "Sydney", Sydney, [0, 1, 2]),
+    ("dubai", "Dubai", Dubai, [0, 1, 2]),
+    ("trail-patch", "Trail Patch", TrailPatch, [0, 1, 2]),
+    ("data-pro", "Data Pro", DataPro, [0, 1, 2]),
 ]
 SHOTS = [dict(steps=8412, hr=58, battery_level=72, minutes=608), dict(steps=12650, hr=64, battery_level=88, minutes=754),
          dict(steps=4213, hr=71, battery_level=45, minutes=1172)]
