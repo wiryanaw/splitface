@@ -9,7 +9,8 @@ STILL = {"running-track": 0.55, "orbit": 8 / 60, "topo-map": 0.0, "liquid-batter
          "sticker-bomb": 0.0, "arcade-hud": 0.0, "waypoint-map": 0.0, "chess-clock": 0.0, "origami": 0.0,
          "toy-bricks": 0.0, "traffic-light": 0.0, "shot-clock": 0.0, "tennis-court": 0.0, "watermelon": 0.0,
          "jakarta": 0.0, "singapore": 0.0, "kuala-lumpur": 0.0,
-         "paris": 0.0, "san-francisco": 0.0, "sydney": 0.0}
+         "paris": 0.0, "san-francisco": 0.0, "sydney": 0.0,
+         "dubai": 0.0, "trail-patch": 0.0, "data-pro": 0.0}
 
 if __name__ == "__main__":
     for name in sys.argv[1:] or ALL:

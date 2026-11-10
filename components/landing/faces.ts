@@ -224,4 +224,28 @@ export const FACES: Face[] = [
     text: "The Opera House sails on the harbour, with the bridge arching behind them.",
     tags: ["Steps", "Heart rate", "Battery", "Sky colors"],
   },
+  {
+    id: "dubai",
+    name: "Dubai",
+    file: "Dubai",
+    store: "https://apps.garmin.com/apps/d910372e-eb8f-4dfe-bd13-c8ee081b37e6",
+    text: "The Burj Khalifa in glass and steel over the sand, the time stacked beside it.",
+    tags: ["Steps", "Heart rate", "Battery", "Sky colors"],
+  },
+  {
+    id: "trail-patch",
+    name: "Trail Patch",
+    file: "TrailPatch",
+    store: "https://apps.garmin.com/apps/a975f71e-3a9c-4f0a-81ff-8dbd3776e8a7",
+    text: "An embroidered hiking patch on denim, with your stats stitched on its leather banner.",
+    tags: ["Heart rate", "Steps", "Battery", "Patch colors"],
+  },
+  {
+    id: "data-pro",
+    name: "Data Pro",
+    file: "DataPro",
+    store: "https://apps.garmin.com/apps/2e7ffb72-0fb0-4a56-a9f1-b33cfdfc0e65",
+    text: "Weather, body battery, stress, steps and the sun's hours on one calm dark dial.",
+    tags: ["Weather", "Body battery", "Stress", "Sunrise and sunset"],
+  },
 ];
